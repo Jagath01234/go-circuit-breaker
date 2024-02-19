@@ -14,7 +14,7 @@ func CircuitBreaker(next http.Handler) http.Handler {
 		if !ok {
 			newCallInfo := ReqInfo{
 				uRL:            r.URL.String(),
-				tail:           [3]bool{},
+				tail:           [3]bool{true, true, true},
 				isBlocked:      false,
 				blockTimeLevel: 0,
 				blockType:      1,
