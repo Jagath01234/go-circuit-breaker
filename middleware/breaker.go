@@ -64,7 +64,7 @@ func CircuitBreaker(next http.Handler) http.Handler {
 						j++
 					}
 				}
-				if j == lastIndex {
+				if j > lastIndex {
 					info.isBlocked = true
 					endpointMap.Store(r.URL.String(), info)
 				}
