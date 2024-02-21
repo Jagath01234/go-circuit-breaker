@@ -49,7 +49,6 @@ func CircuitBreaker(next http.Handler) http.Handler {
 			for i := 0; i <= lastIndex; i++ {
 				info.tail[i] = true
 			}
-			endpointMap.Store(r.URL.String(), info)
 		} else {
 			j := 0
 			for i := 0; i <= lastIndex; i++ {
@@ -64,8 +63,8 @@ func CircuitBreaker(next http.Handler) http.Handler {
 			}
 			if j > lastIndex {
 				info.isBlocked = true
-				endpointMap.Store(r.URL.String(), info)
 			}
 		}
+		endpointMap.Store(r.URL.String(), info)
 	})
 }
