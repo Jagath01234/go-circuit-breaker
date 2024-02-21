@@ -44,30 +44,27 @@ func CircuitBreaker(next http.Handler) http.Handler {
 		log.Printf("Response status: %d", crw.status)
 		prevCalls, ok = endpointMap.Load(r.URL.String())
 		info := prevCalls.(ReqInfo)
+		lastIndex := len(info.tail) - 1
 		if crw.status == http.StatusOK || crw.status == http.StatusCreated {
-			lastIndex := len(info.tail) - 1
 			for i := 0; i <= lastIndex; i++ {
 				info.tail[i] = true
-				endpointMap.Store(r.URL.String(), info)
 			}
+			endpointMap.Store(r.URL.String(), info)
 		} else {
-			{
-				lastIndex := len(info.tail) - 1
-				j := 0
-				for i := 0; i <= lastIndex; i++ {
-					if i < lastIndex {
-						info.tail[i] = info.tail[i+1]
-					} else {
-						info.tail[i] = false
-					}
-					if !info.tail[i] {
-						j++
-					}
+			j := 0
+			for i := 0; i <= lastIndex; i++ {
+				if i < lastIndex {
+					info.tail[i] = info.tail[i+1]
+				} else {
+					info.tail[i] = false
 				}
-				if j > lastIndex {
-					info.isBlocked = true
-					endpointMap.Store(r.URL.String(), info)
+				if !info.tail[i] {
+					j++
 				}
+			}
+			if j > lastIndex {
+				info.isBlocked = true
+				endpointMap.Store(r.URL.String(), info)
 			}
 		}
 	})
